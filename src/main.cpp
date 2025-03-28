@@ -19,6 +19,8 @@
 #include "LoopInfoPass.h"
 #include "LoopFissionPass.h"
 
+#include "helper.h"
+
 #include <fstream>
 #include <memory>
 
@@ -35,6 +37,15 @@ int main(int argc, char **argv) {
     errs() << "Usage: " << argv[0] << " <IR file>\n";
     return 1;
   }
+  
+  // Turn on polly options
+  std::vector<const char*> pollyArgs;
+  pollyArgs.push_back(argv[0]);
+  pollyArgs.push_back("-polly-check-parallel");
+  cl::ParseCommandLineOptions(pollyArgs.size(), pollyArgs.data(), "Enable polly options\n");
+
+  llvm::DebugFlag = true;
+  llvm::setCurrentDebugType("polyhedral-info");
   
   LLVMContext context;
   
@@ -55,6 +66,9 @@ int main(int argc, char **argv) {
   
   for (auto &F : *program) {
     if (F.isDeclaration())
+      continue;
+
+    if (!isCudaKernel(&F))
       continue;
     dbgs() << "Function: " << F.getName() << "\n";
     FPM.run(F);

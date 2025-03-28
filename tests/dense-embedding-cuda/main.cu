@@ -34,18 +34,15 @@ __global__ void dense_esuhm(
     int embedding_dim,
     const int* offset)
 {
-  // const int batch_idx  = 0; // each batch is handled by a block
-  // const int grain_size = 5;
-  // const int tid = 2;
-  // const int range = offset[batch_idx + 1] - offset[batch_idx];
-  // for (int idx = tid; idx < embedding_dim; idx += grain_size) {
-  //   const T dense_elem = dense[batch_idx * embedding_dim + idx];
-  //   for (int nested_idx = idx; nested_idx < range; nested_idx += embedding_dim) {
-  //     output[offset[batch_idx] + nested_idx] = input[offset[batch_idx] + nested_idx] + dense_elem;
-  //   }
-  // }
-  for (int i = 0; i < 5; i++) {
-    printf("Hello, world!\n");
+  const int batch_idx  = blockIdx.x; // each batch is handled by a block
+  const int grain_size = blockDim.x;
+  const int tid = threadIdx.x;
+  const int range = offset[batch_idx + 1] - offset[batch_idx];
+  for (int idx = tid; idx < embedding_dim; idx += grain_size) {
+    const T dense_elem = dense[batch_idx * embedding_dim + idx];
+    for (int nested_idx = idx; nested_idx < range; nested_idx += embedding_dim) {
+      output[offset[batch_idx] + nested_idx] = input[offset[batch_idx] + nested_idx] + dense_elem;
+    }
   }
 }
 
@@ -60,11 +57,11 @@ __global__ void dense_esuhm2(
   const int batch_idx  = blockIdx.x;
   const int start = offset[batch_idx];
   const int range = offset[batch_idx + 1] - start;
-  for (int idx = 0; idx < 10; idx += 2) {
+  for (int idx = threadIdx.x; idx < embedding_dim; idx += blockDim.x) {
     const T dense_elem = dense[batch_idx * embedding_dim + idx];
-    // for (int nested_idx = idx; nested_idx < range; nested_idx += embedding_dim) {
-    //   output[start + nested_idx] = input[start + nested_idx] + dense_elem;
-    // }
+    for (int nested_idx = idx; nested_idx < range; nested_idx += embedding_dim) {
+      output[start + nested_idx] = input[start + nested_idx] + dense_elem;
+    }
   }
 }
 

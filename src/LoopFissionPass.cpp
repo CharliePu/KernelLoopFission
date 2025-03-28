@@ -8,6 +8,7 @@
 #include "llvm/IR/Dominators.h"
 
 #include "LoopInfoPass.h"
+#include "helper.h"
 
 using namespace llvm;
 
@@ -16,11 +17,6 @@ char LoopFissionPass::ID = 0;
 LoopFissionPass::LoopFissionPass() : FunctionPass(ID) {}
 
 LoopFissionPass::~LoopFissionPass() {}
-
-bool isCudaKernel(Function &F)
-{
-    return F.getMetadata("nvvm.annotations") != nullptr;
-}
 
 bool LoopFissionPass::prepareLoopBounds(Loop *loop, LoopBounds &bounds)
 {
@@ -225,7 +221,7 @@ bool LoopFissionPass::addStreamModeArg(Function &F, Function **modifiedFunc)
 
 bool LoopFissionPass::runOnFunction(Function &F)
 {
-    if (!isCudaKernel(F))
+    if (!isCudaKernel(&F))
     {
         return false;
     }

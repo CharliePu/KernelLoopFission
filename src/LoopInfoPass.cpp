@@ -4,6 +4,8 @@
 #include "llvm/Support/raw_ostream.h"
 #include "polly/ScopInfo.h"
 
+#include "helper.h"
+
 using namespace llvm;
 using namespace polly;
 
@@ -17,6 +19,16 @@ LoopInfoPass::LoopInfoPass() : LoopPass(ID) {}
 LoopInfoPass::~LoopInfoPass() {}
 
 bool LoopInfoPass::runOnLoop(Loop *L, LPPassManager &LPM) {
+
+  auto func = (*L->block_begin())->getParent();
+  if (!isCudaKernel(func)) {
+    return false;
+  }
+
+  if (!L->isOutermost()) {
+    return false;
+  }
+
   PolyhedralInfo &PI = getAnalysis<PolyhedralInfo>();
   
   auto *S = PI.getScopContainingLoop(L);
@@ -25,6 +37,10 @@ bool LoopInfoPass::runOnLoop(Loop *L, LPPassManager &LPM) {
   } else {
     dbgs() << "\tNo static control part found\n";
   }
+
+  // dbgs()<<"Print info start\n";
+  // PI.print(dbgs());
+  // dbgs()<<"Print info end\n";
   
   if (PI.isParallel(L)) {
     dbgs()<<"\tParallel loop: "+L->getHeader()->getName()<<"\n";
@@ -32,17 +48,17 @@ bool LoopInfoPass::runOnLoop(Loop *L, LPPassManager &LPM) {
     dbgs()<<"\tNon-parallel loop: "+L->getHeader()->getName()<<"\n";
   }
   
-  for (auto *BB : L->blocks()) {
-    dbgs() << "\t\tBasic Block: " << BB->getName() << "\n";
-    for (auto &I : *BB) {
-      dbgs() <<"\t\t\t"<< I << "\n";
-    }
-  }
+  // for (auto *BB : L->blocks()) {
+  //   dbgs() << "\t\tBasic Block: " << BB->getName() << "\n";
+  //   for (auto &I : *BB) {
+  //     dbgs() <<"\t\t\t"<< I << "\n";
+  //   }
+  // }
   
-  dbgs() << "\n";
+  dbgs() << "\n\n";
 
   // Placeholder, assuming every loop is splittable
-  CandidateLoops[L->getHeader()->getParent()] = L;
+  // CandidateLoops[L->getHeader()->getParent()] = L;
   
   return false;
 }

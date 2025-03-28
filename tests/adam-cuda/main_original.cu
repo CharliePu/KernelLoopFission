@@ -23,13 +23,13 @@ void adam (
   const float decay)
 {
   const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-  const size_t totThreads = 1024;
+  const size_t totThreads = gridDim.x*blockDim.x;
 
   for (size_t j = i; j < vector_size; j += totThreads) {
     for (int t = 0; t < time_step; t++) {
       T scaled_grad = g[j]/grad_scale;
       m[j] = b1*m[j] + (1.f-b1)*scaled_grad;
-      v[j] = b2*v[j-1] + (1.f-b2)*scaled_grad*scaled_grad;
+      v[j] = b2*v[j] + (1.f-b2)*scaled_grad*scaled_grad;
       float m_corrected = m[j] / (1.f-powf(b1, t));
       float v_corrected = v[j] / (1.f-powf(b2, t));
       float denom;
@@ -127,17 +127,17 @@ int main(int argc, char* argv[])
   cudaFree(d_g);
 
   // verify
-  // reference<float, float>(
-  //   repeat,
-  //   r, m, v, g,
-  //   beta1, beta2,
-  //   eps,
-  //   grad_scale,
-  //   step_size,
-  //   time_step,
-  //   vector_size,
-  //   mode,
-  //   decay);
+  reference<float, float>(
+    repeat,
+    r, m, v, g,
+    beta1, beta2,
+    eps,
+    grad_scale,
+    step_size,
+    time_step,
+    vector_size,
+    mode,
+    decay);
 
   bool ok = true; 
   for (int i = 0; i < vector_size; i++) {
