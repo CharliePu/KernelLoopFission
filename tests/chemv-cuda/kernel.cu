@@ -19,9 +19,8 @@ __global__ void kernel0(struct ComplexFloat *AT, struct ComplexFloat *X, struct 
     float private_var97_Re;
     float private_var98_Re;
 
-    int m1 = 368;
     #define ppcg_min(x,y)    ({ __typeof__(x) _x = (x); __typeof__(y) _y = (y); _x < _y ? _x : _y; })
-    for (int c1 = 0; c1 <= m1; c1 += 32) {
+    for (int c1 = 0; c1 <= ppcg_min(368, 32 * b0 + 30); c1 += 32) {
       if (32 * b0 + t0 <= 369 && c1 == 0) {
         private_var5_Re = ((Y[32 * b0 + t0].Re * beta_re) - (Y[32 * b0 + t0].Im * beta_im));
         private_var5_Im = ((Y[32 * b0 + t0].Im * beta_re) + (Y[32 * b0 + t0].Re * beta_im));
@@ -36,9 +35,8 @@ __global__ void kernel0(struct ComplexFloat *AT, struct ComplexFloat *X, struct 
         Y[32 * b0 + t0].Re = private_var4_Re;
         Y[32 * b0 + t0].Im = private_var4_Im;
       }
-      if (32 * b0 + t0 <= 369) {
-        int m2 = 31 < 32 * b0 + t0 - c1 - 1 ? 31 : 32 * b0 + t0 - c1 - 1;
-        for (int c3 = 0; c3 <= m2; c3 += 1) {
+      if (32 * b0 + t0 <= 369)
+        for (int c3 = 0; c3 <= 33; c3 += 1) {
           private_var97_Re = ((alpha_re * AT[32 * b0 + t0 + 370 * c1 + 370 * c3].Re) - (alpha_im * AT[32 * b0 + t0 + 370 * c1 + 370 * c3].Im));
           private_var97_Im = ((alpha_im * AT[32 * b0 + t0 + 370 * c1 + 370 * c3].Re) + (alpha_re * AT[32 * b0 + t0 + 370 * c1 + 370 * c3].Im));
           private_var98_Re = ((private_var97_Re * X[c1 + c3].Re) - (private_var97_Im * X[c1 + c3].Im));
@@ -48,8 +46,7 @@ __global__ void kernel0(struct ComplexFloat *AT, struct ComplexFloat *X, struct 
           Y[32 * b0 + t0].Re = private_var99_Re;
           Y[32 * b0 + t0].Im = private_var99_Im;
         }
-      }
-      // __syncthreads();
+      __syncthreads();
     }
 }
 __global__ void kernel1(struct ComplexFloat *AT, struct ComplexFloat *X, struct ComplexFloat *Y, float alpha_im, float alpha_re)
@@ -66,7 +63,7 @@ __global__ void kernel1(struct ComplexFloat *AT, struct ComplexFloat *X, struct 
     #define ppcg_min(x,y)    ({ __typeof__(x) _x = (x); __typeof__(y) _y = (y); _x < _y ? _x : _y; })
     #define ppcg_max(x,y)    ({ __typeof__(x) _x = (x); __typeof__(y) _y = (y); _x > _y ? _x : _y; })
     for (int c1 = 5888 * b0; c1 <= ppcg_min(67712, 5856 * b0 + 6016); c1 += 32) {
-      for (int c3 = ppcg_max(0, 5888 * b0 + 184 * t0 - c1); c3 <= ppcg_min(31, 5856 * b0 + 183 * t0 - c1 + 368); c3 += 1) {
+      for (int c3 = 0; c3 <= 20; c3 += 1) {
         private_var94_Re = ((alpha_re * AT[5984 * b0 + 187 * t0 + c1 + c3 + 1].Re) - (alpha_im * (-AT[5984 * b0 + 187 * t0 + c1 + c3 + 1].Im)));
         private_var94_Im = ((alpha_im * AT[5984 * b0 + 187 * t0 + c1 + c3 + 1].Re) + (alpha_re * (-AT[5984 * b0 + 187 * t0 + c1 + c3 + 1].Im)));
         private_var95_Re = ((private_var94_Re * X[-5856 * b0 - 183 * t0 + c1 + c3 + 1].Re) - (private_var94_Im * X[-5856 * b0 - 183 * t0 + c1 + c3 + 1].Im));
@@ -76,6 +73,6 @@ __global__ void kernel1(struct ComplexFloat *AT, struct ComplexFloat *X, struct 
         Y[32 * b0 + t0].Re = private_var96_Re;
         Y[32 * b0 + t0].Im = private_var96_Im;
       }
-      __syncthreads();
+      // __syncthreads();
     }
 }

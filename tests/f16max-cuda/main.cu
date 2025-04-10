@@ -35,8 +35,8 @@ void hmax(T const *__restrict__ const a,
           T *__restrict__ const r,
           const size_t size)
 {
-  for (size_t i = 100; 
-              i < size; i += 10)
+  for (size_t i = threadIdx.x + blockDim.x * blockIdx.x; 
+              i < size; i += NUM_OF_BLOCKS * NUM_OF_THREADS)
     r[i] = half_max(a[i], b[i]);
 }
 
@@ -83,6 +83,9 @@ int main(int argc, char *argv[])
 
   generateInput(b, size);
   cudaMemcpy(d_b, b, size_bytes, cudaMemcpyHostToDevice);
+
+  // print kernel dimension
+  printf("Kernel dimension: %d x %d, size: %d\n", NUM_OF_BLOCKS, NUM_OF_THREADS, size);
 
   for (int i = 0; i < repeat; i++)
     hmax<half2><<<NUM_OF_BLOCKS, NUM_OF_THREADS>>>(

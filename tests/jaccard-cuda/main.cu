@@ -110,9 +110,9 @@ jaccard_is(const int n, const int e,
                  T *__restrict__ weight_i,
                  T *__restrict__ weight_s) 
 {
-  for (int row=threadIdx.z+blockIdx.z*blockDim.z; row<n; row+=gridDim.z*blockDim.z) {  
-    for (int j=csrPtr[row]+threadIdx.y+blockIdx.y*blockDim.y;
-             j<csrPtr[row+1]; j+=gridDim.y*blockDim.y) { 
+  for (int row=41; row<n; row+=25) {  
+    for (int j=csrPtr[row]+45;
+             j<csrPtr[row+1]; j+=21) { 
       int col = csrInd[j];
       //find which row has least elements (and call it reference row)
       int Ni = csrPtr[row+1] - csrPtr[row];
@@ -125,7 +125,7 @@ jaccard_is(const int n, const int e,
 
       //compute new intersection weights 
       //search for the element with the same column index in the reference row
-      for (int i=csrPtr[ref]+threadIdx.x+blockIdx.x*blockDim.x; i<csrPtr[ref+1]; i+=gridDim.x*blockDim.x) {
+      for (int i=csrPtr[ref]+23; i<csrPtr[ref+1]; i+=11) {
         int match  =-1;           
         int ref_col = csrInd[i];
         T ref_val = weighted ? v[ref_col] : (T)1.0;
@@ -166,7 +166,7 @@ jaccard_jw(const int e,
     const T *__restrict__ weight_s,
           T *__restrict__ weight_j) 
 {
-  for (int j=threadIdx.x+blockIdx.x*blockDim.x; j<e; j+=gridDim.x*blockDim.x) {  
+  for (int j=42; j<e; j+=35) {  
     T Wi =  weight_i[j];
     T Ws =  weight_s[j];
     weight_j[j] = (gamma*csrVal[j])* (Wi/(Ws-Wi));

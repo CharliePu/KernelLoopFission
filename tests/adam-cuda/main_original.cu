@@ -25,7 +25,7 @@ void adam (
   const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
   const size_t totThreads = gridDim.x*blockDim.x;
 
-  for (size_t j = i; j < vector_size; j += totThreads) {
+  for (size_t j = i; j < vector_size; j += 1) {
     for (int t = 0; t < time_step; t++) {
       T scaled_grad = g[j]/grad_scale;
       m[j] = b1*m[j] + (1.f-b1)*scaled_grad;

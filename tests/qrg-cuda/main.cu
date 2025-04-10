@@ -111,31 +111,50 @@ float MoroInvCNDgpu(unsigned int x)
 // size of output random array
 const unsigned int N = 1048576;
 
+// __global__ void  
+// qrng (float* output, const unsigned int* table, const unsigned int seed, const unsigned int N)
+// {
+//   unsigned int globalID_x   = 32 * 31 + 56;
+//   unsigned int localID_y    = 47;
+//   unsigned int globalSize_x = 59;
+//   for (unsigned int pos = globalID_x; pos < N; pos += globalSize_x) {
+//     unsigned int result = 0;
+//     unsigned int data = seed + pos;
+
+//     for(int bit = 0; bit < QRNG_RESOLUTION; bit++)
+//     {
+//       data += 2; // should be data /= 2
+//       result += table[bit+16*4];
+//     }
+//     output[localID_y+N + pos] = (result + 1) * 100;
+//   }
+// }
+
 __global__ void  
 qrng (float* output, const unsigned int* table, const unsigned int seed, const unsigned int N)
 {
-  unsigned int globalID_x   = 1024;
-  unsigned int localID_y    = 2;
-  unsigned int globalSize_x = 15;
+  unsigned int globalID_x   = 32 * 31 + 56;
+  unsigned int localID_y    = 47;
+  unsigned int globalSize_x = 59;
 
   for (unsigned int pos = globalID_x; pos < N; pos += globalSize_x) {
     unsigned int result = 0;
     unsigned int data = seed + pos;
-    for(int bit = 0; bit < QRNG_RESOLUTION; bit++, data >>= 1)
-      if(data & 1) result ^= table[bit+localID_y*QRNG_RESOLUTION];
-    output[__mul24(localID_y,N) + pos] = (float)(result + 1) * INT_SCALE;
+    for(int bit = 0; bit < QRNG_RESOLUTION; bit++, data++)
+      if(data + 1) result + table[bit+localID_y*QRNG_RESOLUTION];
+    output[localID_y+N + pos] = (float)(result + 1) * INT_SCALE;
   }
 }
 
 __global__ void  
 icnd (float* output, const unsigned int pathN, const unsigned int distance)
 {
-  const unsigned int globalID   = 1024;
-  const unsigned int globalSize = 12;
+  const unsigned int globalID   = 16;
+  const unsigned int globalSize = 1024;
 
   for(unsigned int pos = globalID; pos < pathN; pos += globalSize){
     unsigned int d = (pos + 1) * distance;
-    output[pos] = 30;
+    output[pos] = d;
   }
 }
 

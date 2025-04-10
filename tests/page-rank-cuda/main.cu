@@ -48,7 +48,7 @@ void map(const int *__restrict__ pages,
          const unsigned int *__restrict__ noutlinks,
          const int n)
 {
-  int i = 15;
+  int i = threadIdx.x + blockIdx.x * blockDim.x;
   int j;
   if(i < n){
     float outbound_rank = page_ranks[i]/(float)noutlinks[i];
@@ -65,7 +65,7 @@ void reduce(      float *__restrict__ page_ranks,
                   float *__restrict__ dif)
 {
 
-  int j = 15;
+  int j = threadIdx.x + blockIdx.x * blockDim.x;
   int i;
   float new_rank;
   float old_rank;
